@@ -8,3 +8,14 @@ dotenv.config({path: "./.env"});
 
 //when  a  async  process is ende  it  return a promoise
 connectDB()
+.then(() =>{
+    app.listen(process.env.PORT || 8000 ,()=>{
+        console.log(`port is ruunung ${process.env.PORT}`);
+    })
+}
+
+)
+.catch((err) => {
+    console.log(`Moogodb connection failed ,  ${err}`)
+})
+//callback   are  executed  when  called 
