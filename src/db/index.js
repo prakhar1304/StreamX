@@ -9,7 +9,7 @@ const connectDB =  async () => {
         // where your MongoDB instance is hosted.
     } catch (error) {
         console.log(`Moogodb  conncetio  failed ${error}`);
-        process.exit(1)
+        process.exit(1)//stop the process
         //process.exit() is a method to stop the execution of the program.
         //The argument 1 indicates that the process is exiting with an error. 
        // Typically, 0 indicates successful execution
