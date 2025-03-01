@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
+
 const app =  express();
 //app.use  is middleware by  app.use(cors()) cors is  confug but  for better use
 app.use(cors({
@@ -9,7 +10,7 @@ app.use(cors({
     credentials:true
 }))
 
-//multer  fo r file transfer
+//multer  to  file transfer
 //body-parse  for  previous 
 app.use(express.json({limit: "16kb"}))
 //for url 
@@ -28,4 +29,10 @@ app.use(express.static("public")) //remember we   create a  dir  public
 
 app.use(cookieParser())
 
-export default {app}
+//router
+import userRouter from "./router/user.routers.js"
+//since  we are  using   route  in  different  folder  so  now  we  cant  use directly  we  need  to use middleware use  to  acees
+
+app.use("/api/v1/user",userRouter )
+
+export  {app}

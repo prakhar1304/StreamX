@@ -6,7 +6,7 @@
 // const asyncHandler = (func) => () => {}
 // const asyncHandler = (func) => async () => {}
 
-const asyncHandler = (fn) => {
+/*const asyncHandler = (fn) => {
     //takes  asyn fun input 
     //res and  req  obj
     //next → Function to pass control to the next middleware
@@ -25,7 +25,7 @@ const asyncHandler = (fn) => {
   }
 }
 
-export {asyncHandler}
+export {asyncHandler}*/
 //export default -->  to  export one thing
 
 // class name  -->   capital
@@ -34,9 +34,9 @@ export {asyncHandler}
 
 
 
-/*
-----------ya  code  samjh nhi aaya  -------------------
--------- better  alternative  of  above  code------------------
+
+//----------ya  code  samjh nhi aaya  -------------------
+//-------- better  alternative  of  above  code------------------
 const asyncHandler = (requestHandler) => {
     return (req, res, next) => {
         Promise.resolve(requestHandler(req, res, next)).catch((err) => next(err))
@@ -45,4 +45,3 @@ const asyncHandler = (requestHandler) => {
 
 
 export { asyncHandler }
-*/
