@@ -31,7 +31,7 @@ const  userSchema =  new Schema({
         require:true,
     },
     coverImage:{
-        type: string, 
+        type: String, 
     },
     watchHistory:[
         {
@@ -54,7 +54,7 @@ userSchema.pre("save" , async function (next){
 
     if(!this.isModified("password")) return next();
 
-    this.password = bcrypt.hash(this.password,10)
+    this.password = await bcrypt.hash(this.password,10)
     //bcrypt  has  methode  hash  which   take  2  things  as imput  kisko  karna ha  or  kitna  round karna ha 
     next()//after  compt this  fun  will run
 
