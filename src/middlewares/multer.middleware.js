@@ -5,7 +5,9 @@ import multer
 //cb is  callback
 
 // Define the upload directory
-const uploadPath = path.join('D:', 'public', 'temp');  // Absolute path: D:/public/temp
+//__dirname --. current directory name
+// const uploadPath = path.join(__dirname, 'public', 'temp');  // Absolute path: D:/public/temp
+const uploadPath = "/public/temp" ;  // Absolute path: D:/public/temp
 
 // Check if the directory exists; if not, create it
 if (!fs.existsSync(uploadPath)) {
@@ -15,7 +17,7 @@ if (!fs.existsSync(uploadPath)) {
 
  const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-      cb(null, uploadPath)
+      cb(null, uploadPath )
       //error  wehn i  was  writting in   single  quote
     },
     filename: function (req, file, cb) {
