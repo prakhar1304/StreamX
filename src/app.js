@@ -27,7 +27,7 @@ app.use(express.static("public")) //remember we   create a  dir  public
 
 //in user  browser  i  can  set and get cookies => basic  crud operation  (Create  read  update delete)
 
-app.use(cookieParser())
+app.use(cookieParser())//yaha  pa  ya   lagan  ka  faida ya  hua  ki m acontroller  ma  cookie  use kar  parhahu
 
 //router
 import userRouter from "./router/user.routers.js"
