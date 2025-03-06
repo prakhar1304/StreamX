@@ -11,10 +11,10 @@ import {asyncHandler} from "../utils/asyncHandler.js"
     //3  use  that  detail 
 
    try {
-     const  token = req.cookies?.accesToken || req.header["Authorization"].replace("Bearer " , "")
+     const  token = req.cookies?.accessToken || req.header["authorization"]?.replace("Bearer " , "")
  
      if(!token){
-         throw new ApiError(400 , "user invalide");
+         throw new ApiError(400 , "User is not authorized, token missing");
      }
      //jwt have  the  information  when  we  made and   we have  to decode it to  extract
      const userJwt = jwt.verify(token , process.env.ACCES_TOKEN_SECRET)
@@ -33,7 +33,8 @@ import {asyncHandler} from "../utils/asyncHandler.js"
     next()
 
    } catch (error) {
-    throw new  ApiError(200 , "kya  pta   error")
+      console.log(error);
+    throw new  ApiError(200 , "auth middleware error")
    }
 })
 
