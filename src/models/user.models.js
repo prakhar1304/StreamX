@@ -1,6 +1,7 @@
 import mongoose, { Schema, Types } from 'mongoose';
 //mongoo  auto matically  genrate  unique  id
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 const userSchema = new Schema(
   {
@@ -73,7 +74,7 @@ userSchema.methods.checkPassword = async function (password) {
 };
 
 userSchema.methods.genrateAccesToken = function () {
-  jwt.sign(
+  return jwt.sign(
     {
       //pass payload
       _id: this._id,

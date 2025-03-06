@@ -9,36 +9,40 @@ import cookieParser from 'cookie-parser';
 
 
 const refereshTokenAccesToken = async (userId) => {
- try {
-  const user =  await User.findById(userId);
-  const refreshToken = user.rgenrateRefreshToken();
-  const accessToken = user.genrateAccesToken();
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    console.log("user", user);
+    const refreshToken =  user.genrateRefreshToken();
+    const accessToken =  user.genrateAccesToken();
 
-  user.refreshToken =  refreshToken;
-  //how  is  this  possible 
-  user.save({ validateBeforeSave: false });
+    user.refreshToken = refreshToken;
+    //how  is  this  possible 
+    console.log(refreshToken);
+    await  user.save({ validateBeforeSave: false });
 
-  return {accessToken , refreshToken }
-  
- } catch (error) {
-  throw new  ApiError(500 ,"issue  from our  side  while geting  acess token and refresh token")
- }
+    return { accessToken, refreshToken }
+
+  } catch (error) {
+    throw new ApiError(500, "issue  from our  side  while geting  acess token and refresh token")
+  }
 }
-  //get user details from frontend
-  //validation - not  empty
-  //check if user already exist (email)
-  //check for images avtar
-  //upload them to clodinary
-  //create user object -->  mongo  db  create entry in db
-  //remove password and refresh token field from res
-  //check for user creation
-  //return res
-  //----------------------------
-  //url
-  // Form   json  -->  req.boy
+//get user details from frontend
+//validation - not  empty
+//check if user already exist (email)
+//check for images avtar
+//upload them to clodinary
+//create user object -->  mongo  db  create entry in db
+//remove password and refresh token field from res
+//check for user creation
+//return res
+//----------------------------
+//url
+// Form   json  -->  req.boy
 
-const resigertuser = asyncHandler(async (req, res) => 
-{
+const resigertuser = asyncHandler(async (req, res) => {
 
   const { fullname, email, username, password } = req.body;
   console.log('email:', email);
@@ -70,8 +74,8 @@ const resigertuser = asyncHandler(async (req, res) =>
 
   console.log(req.files);
   //check if   file  existe  then  only 
-  let coverImageLocalPath ;
-  if(req.files && (req.files?.coverImage) && req.files?.coverImage[0] && req.files?.coverImage[0]?.path){
+  let coverImageLocalPath;
+  if (req.files && (req.files?.coverImage) && req.files?.coverImage[0] && req.files?.coverImage[0]?.path) {
     coverImageLocalPath = req.files?.coverImage[0]?.path;
   }
 
@@ -107,86 +111,92 @@ const resigertuser = asyncHandler(async (req, res) =>
     );
   }
 
-  
-return res.status(201).json(new ApiResponse(200, CreatedUser, 'o'));
+
+  return res.status(201).json(new ApiResponse(200, CreatedUser, 'o'));
 });
 
 
 
-const  loginUser =  asyncHandler ( async (req , res) => {
-
+const loginUser = asyncHandler(async (req, res) => 
+{
   //req body 
   // username or  email 
   //find the user 
   //  password check 
   //access and  refresh  token 
   //send  cokie
+  console.log("Incoming Request Body:", req.body);
 
-  const {email , username , password} = req.body;
+  const { email, username, password } = req.body;
+  console.log("email:",  email );
+  if (!email && !username ) {
+    throw new ApiError(400, "either username or email field  is required")
+  }
 
-if(!email || !username){
-  throw new   ApiError(400, "Enter  either  username or email")
-}
 
-
-  const  user = await User.findOne({
-    $or: [{email} , {username}]
+  const user = await User.findOne({
+    $or: [{ email }, { username }]
   })
 
-  if(!user){
-    throw new ApiError(400 , "No  user  found with this email or username")
+  console.log("user:",  user._id );
+  if (!user) {
+    throw new ApiError(400, "No  user  found with this email or username")
   }
 
   const isPasswordCorrect = await user.checkPassword(password);
+  console.log(isPasswordCorrect);
 
-  if(!isPasswordCorrect){
-    throw new ApiError(401 , "invalid user creditionals")
+  if (!isPasswordCorrect) {
+    throw new ApiError(401, "invalid user creditionals")
   }
 
- const {accessToken , refreshToken} =  refereshTokenAccesToken(user._id);
+  const { accessToken, refreshToken } = await refereshTokenAccesToken(user._id);
 
- const loggeduser = await user.findById(user._id).select("-password -refreshToken")
+  const loggeduser = await User.findById(user._id).select("-password -refreshToken")
 
- //how  to  passss to  cokkies 
- //this  option   add  option  so that  u  can   change   cookies  from server only 
-//modofy  only  by  server
- const options = {
-  httpOnly: true,
-  secure : true
- }
-
- res.status(200)
- .cookie("accessToken" , accessToken , options)
- .cookie("refreshToken" , refreshToken , options)
- .json
- (
-    new ApiResponse (200 , {user:  loggeduser , accessToken , refreshToken} , "user logged in  succesfully")
- )
-
-
- const logOutuser = asyncHandler (async (req , res ) => 
- {
-  //how  to   get user 
-
-  await User.findByIdAndUpdate(req.user._id,{
-
-    $set: {
-      refreshToken: undefined
-    },
-    {new : true}//this  line  help  to  return  the  updated   data
-  });
- 
+  //how  to  passss to  cokkies 
+  //this  option   add  option  so that  u  can   change   cookies  from server only 
+  //modofy  only  by  server
   const options = {
     httpOnly: true,
-    secure : true
-   }
+    secure: true
+  }
 
-  return req.status(200).clearCookies(accessToken, option).clearCookies(refreshToken , option).json(
-    new ApiRes(200 , {} , "User LOGOUT")
-  )
+  res.status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json
+    (
+      new ApiResponse(200, { user: loggeduser, accessToken, refreshToken }, "user logged in  succesfully")
+    )
+})
 
- })
+
+const logOutuser = asyncHandler(async (req, res) => {
+  //how  to   get user 
+  await User.findByIdAndUpdate(req.user._id,
+    {
+      $set:
+      {
+        refreshToken: ""
+      }
+    },
+    //this  line  help  to  return  the  updated   data
+    { new: true })
+  //ek  comma  bi  error  de  sakta ha 
+   const options = {
+    httpOnly: true,
+    secure: true
+  };
+
+  return res
+    .status(200)
+    .clearCookie("accessToken", options)
+    .clearCookie("refreshToken", options)
+    .json(
+      new ApiRes(200, {}, "User LOGOUT")
+    )
 
 })
 
-export { resigertuser  , loginUser  , logOutuser};
+export { resigertuser, loginUser, logOutuser };

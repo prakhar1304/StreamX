@@ -1,8 +1,9 @@
-import { ApiError } from "../utils/ApiError"
-import {User}  from "../models/user.models"
+import { ApiError } from "../utils/ApiError.js"
+import {User}  from "../models/user.models.js"
 import jwt from "jsonwebtoken"
+import {asyncHandler} from "../utils/asyncHandler.js"
 
-export const verifyUser = asyncHandler(async (req ,  res , next) => {
+ const verifyUser = asyncHandler(async (req ,  res , next) => {
   
 
     //1.token  lo 
@@ -10,10 +11,10 @@ export const verifyUser = asyncHandler(async (req ,  res , next) => {
     //3  use  that  detail 
 
    try {
-     const  token = req.cookies?.accesToken || req.header.("Authorization").replace("Bearer " , "")
+     const  token = req.cookies?.accesToken || req.header["Authorization"].replace("Bearer " , "")
  
      if(!token){
-         throw new ApiError(400 , "user invalide")
+         throw new ApiError(400 , "user invalide");
      }
      //jwt have  the  information  when  we  made and   we have  to decode it to  extract
      const userJwt = jwt.verify(token , process.env.ACCES_TOKEN_SECRET)
@@ -21,7 +22,7 @@ export const verifyUser = asyncHandler(async (req ,  res , next) => {
      const userDetail = User.findById(userJwt._id)
 
      if(!userDetail){
-        throw new ApiError(200, "user is not  Authorized")
+        throw new ApiError(200, 'user is not  Authorized');
      }
 
     const user = userDetail.select("-password -refreshToken")
@@ -35,3 +36,7 @@ export const verifyUser = asyncHandler(async (req ,  res , next) => {
     throw new  ApiError(200 , "kya  pta   error")
    }
 })
+
+
+
+export {verifyUser}
