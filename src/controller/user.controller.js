@@ -5,6 +5,7 @@ import { uploadOnCloudinary } from '../utils/cloudinary.js';
 import { ApiResponse } from '../utils/ApiRes.js';
 import path from "path"
 import cookieParser from 'cookie-parser';
+import jwt from 'jsonwebtoken';
 
 
 
@@ -199,4 +200,47 @@ const logOutuser = asyncHandler(async (req, res) => {
 
 })
 
-export { resigertuser, loginUser, logOutuser };
+
+const refreshAccesToken = asyncHandler(async (req, res) => {
+  
+const incomingRefreshToken = req.cookie.refreshToken || req.body.refreshToken 
+
+if (!incomingRefreshToken){
+  throw new ApiError(401, "unauthorized request")
+}
+
+const decodedToken  = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
+
+const user = await User.findById(decodedToken?._id)
+
+if(!user){
+  throw new ApiError(404, "user not found")
+}
+
+if(incomingRefreshToken !== user.refreshToken)
+{
+  throw new ApiError(401 , "either   refresh token is invalid or expired")
+}
+
+const {accessToken ,  refreshToken} = await refereshTokenAccesToken(user._id)
+
+const option = {
+  httpOnly: true,
+  secure: true,
+}
+return res.status(200)
+.cookie("accessToken", accessToken, option)
+.cookie("refreshToken", refreshToken , option)
+.json(
+  new ApiResponse(
+    200,
+    {
+               accessToken , refreshToken
+    },
+    "refreshtoken"
+  )
+)
+
+})
+
+export { resigertuser, loginUser, logOutuser  , refreshAccesToken};
